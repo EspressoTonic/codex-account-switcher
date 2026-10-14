@@ -73,6 +73,8 @@ Global options go before the command: `--state-dir ABSOLUTE_PRIVATE_PATH`, `--co
 
 `status` reports `authenticated`, `signed-out` or `check-failed` and a method where known. It checks stored authentication, not token freshness, network access, quota or account identity. A profile named `personal` is just a label; complete native login with the intended account and verify the account in Codex. Exit codes: 0 successful check/action; 1 signed out; 2 wrapper/check error; native session exits propagate (128 + signal for signal exits).
 
+For recovery, preserve the registry/homes before editing them. `forget` does not free the old home path for a new `create`; re-register the retained home explicitly to recover its label. A failed creation can leave a private home before registry metadata is committed; inspect and register it rather than deleting unique data. Moving a home can break its native keyring namespace. A `check-failed` status does not imply that signing in again is safe or necessary.
+
 ## Isolation and compatibility
 
 - No persistent default account. Only the launched child receives the selected home; the current shell and other sessions keep theirs.

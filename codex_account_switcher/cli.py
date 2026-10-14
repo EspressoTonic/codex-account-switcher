@@ -9,8 +9,14 @@ from .launcher import (check_version, child_environment, command, interactive,
 from .storage import Registry, SwitcherError, default_state
 
 
+class PrivateArgumentParser(argparse.ArgumentParser):
+    def error(self, _message):
+        self.print_usage(sys.stderr)
+        self.exit(2, "codex-account: Invalid arguments. Use --help; supplied values were not printed.\n")
+
+
 def parser():
-    result = argparse.ArgumentParser(description="Choose a separate Codex account home for each launch.")
+    result = PrivateArgumentParser(prog="codex-account", description="Choose a separate Codex account home for each launch.")
     result.add_argument("--version", action="version", version=__version__)
     result.add_argument("--state-dir", help="Private registry directory outside Git (absolute path).")
     result.add_argument("--codex-bin", default="codex", help="Native Codex executable (default: codex on PATH).")

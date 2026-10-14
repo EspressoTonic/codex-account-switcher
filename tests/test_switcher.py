@@ -283,6 +283,24 @@ class SwitcherTests(unittest.TestCase):
             environment={**self.environment, "FIXTURE_EXIT": "7"})
         self.assertEqual(code, 7)
 
+    def test_invalid_cli_arguments_do_not_echo_supplied_values(self):
+        for arguments in (["--unexpected=SYNTHETIC-PRIVATE-VALUE", "list"],
+                          ["SYNTHETIC-PRIVATE-VALUE"],
+                          ["create", "personal", "--storage", "SYNTHETIC-PRIVATE-VALUE"]):
+            with self.subTest(arguments=arguments):
+                output, error = io.StringIO(), io.StringIO()
+                with contextlib.redirect_stdout(output), contextlib.redirect_stderr(error):
+                    with self.assertRaises(SystemExit) as caught:
+                        main(arguments)
+                self.assertEqual(caught.exception.code, 2)
+                self.assertNotIn("SYNTHETIC-PRIVATE-VALUE", output.getvalue() + error.getvalue())
+
+    def test_unknown_environment_variable_names_are_sanitized(self):
+        profile = self.profile()
+        with self.assertRaises(SwitcherError) as caught:
+            child_environment(profile, {"CODEX_\nSYNTHETIC-PRIVATE-NAME": "synthetic"})
+        self.assertNotIn("SYNTHETIC-PRIVATE-NAME", str(caught.exception))
+
     def test_two_profiles_run_concurrently_and_login_cannot_replace_active_auth(self):
         profiles = [self.profile("work"), self.profile("personal")]
         children = []

@@ -45,7 +45,8 @@ def validate_environment(environment):
     conflicts += sorted(name for name in environment if name.startswith("CODEX_")
                         and name not in AUTH_ENV and name not in allowed and environment[name].strip())
     if conflicts:
-        raise SwitcherError("Account/state overrides are set: " + ", ".join(conflicts)
+        names = [name if re.fullmatch(r"[A-Z_][A-Z0-9_]{0,63}", name) else "<unrecognized Codex variable>" for name in conflicts]
+        raise SwitcherError("Account/state overrides are set: " + ", ".join(names)
                             + ". Unset them explicitly before selecting a profile; values were not printed.")
 
 
